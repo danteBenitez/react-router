@@ -1,7 +1,7 @@
 export const TASK_ACTIONS = {
   ADD: "ADD",
   DELETE: "DELETE",
-  TOGGLE_DONE: "TOGGLE DONE"
+  TOGGLE_DONE: "TOGGLE DONE",
 };
 
 export default function taskReducer(state, action) {
@@ -10,7 +10,8 @@ export default function taskReducer(state, action) {
       return [...state, action.payload];
     }
     case TASK_ACTIONS.DELETE: {
-      return state.filter((task) => task.id !== action.payload);
+      const deleted = state.filter((task) => task.id !== action.payload);
+      return deleted;
     }
     case TASK_ACTIONS.TOGGLE_DONE:
       return state.map((task) =>
@@ -21,13 +22,20 @@ export default function taskReducer(state, action) {
             }
           : task
       );
-    case TASK_ACTIONS.LOAD: {
-        console.log("Cargando todos...", localStorage.getItem("tasks"));
-        return JSON.parse(localStorage.getItem("tasks")) ?? [];
+    case TASK_ACTIONS.UPDATE: {
+      const { task: newTask, id } = action.payload;
+      const updated = state.map((task) =>
+        task.id == id
+          ? {
+              ...task,
+              ...newTask,
+            }
+          : task
+      );
+      return updated;
     }
-    case TASK_ACTIONS.SAVE: {
-        if (state.length == 0) return;
-        localStorage.setItem("tasks", JSON.stringify(state));
+    default: {
+      return state;
     }
   }
 }

@@ -5,18 +5,15 @@ import { useEffect } from "react";
 
 export const TaskContext = createContext({});
 
+const init = () => {
+  return JSON.parse(localStorage.getItem('tasks')) ?? [];
+}
+
 export function TaskContextProvider({ children }) {
-  const [tasks, dispatch] = useReducer(taskReducer, []);
+  const [tasks, dispatch] = useReducer(taskReducer, [], init);
 
   useEffect(() => {
-    dispatch({
-      type: TASK_ACTIONS.LOAD,
-    });
-  }, []);
-
-  useEffect(() => {
-    if (tasks.length == 0) return;
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
   const deleteTask = (id) =>
@@ -37,11 +34,20 @@ export function TaskContextProvider({ children }) {
     payload: task
   })
 
+  const updateTask = (taskId, task)  => dispatch({
+    type: TASK_ACTIONS.UPDATE,
+    payload: {
+      id: taskId,
+      task
+    }
+  });
+
+
   return (
     <TaskContext.Provider
       value={{
         tasks,
-        dispatch,
+        updateTask,
         deleteTask,
         toggleCompleted,
         addTask
